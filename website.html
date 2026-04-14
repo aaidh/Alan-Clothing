@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ALAN — Premium Fashion House. Discover luxury clothing crafted with exceptional quality and timeless elegance.">
+    <title>ALAN Premium Fashion House</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="website.css">
+    <script src="https://www.payhere.lk/lib/payhere.js"></script>
+</head>
+<body>
+
+    <!-- ===== TOAST NOTIFICATION ===== -->
+    <div id="toast" class="toast" role="alert" aria-live="polite"></div>
+
+    <!-- ===== OVERLAY ===== -->
+    <div id="overlay" class="overlay" onclick="UI.closeAll()"></div>
+
+    <!-- ===== SIGN IN MODAL ===== -->
+    <div id="signin-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="signin-title">
+        <div class="modal-inner">
+            <button class="modal-close" onclick="UI.closeModal('signin-modal')" aria-label="Close"><i class='bx bx-x'></i></button>
+            <div class="modal-brand">ALAN</div>
+            <h2 class="modal-title" id="signin-title">Welcome Back</h2>
+            <p class="modal-sub">Sign in to your account to continue</p>
+            <form id="signin-form" class="auth-form" novalidate>
+                <div class="form-group">
+                    <label for="signin-email">Email Address</label>
+                    <input type="email" id="signin-email" placeholder="hello@example.com" autocomplete="email" required>
+                    <span class="field-error" id="signin-email-err"></span>
+                </div>
+                <div class="form-group">
+                    <label for="signin-password">Password</label>
+                    <div class="input-wrap">
+                        <input type="password" id="signin-password" placeholder="••••••••" autocomplete="current-password" required>
+                        <button type="button" class="toggle-pw" onclick="UI.togglePassword('signin-password')" aria-label="Toggle password"><i class='bx bx-hide' id="signin-pw-icon"></i></button>
+                    </div>
+                    <span class="field-error" id="signin-pw-err"></span>
+                </div>
+                <button type="submit" class="btn-primary btn-full" id="signin-btn">
+                    <span>Sign In</span>
+                    <i class='bx bx-right-arrow-alt'></i>
+                </button>
+            </form>
+            <p class="auth-switch">Don't have an account? <button onclick="UI.switchModal('signin-modal','signup-modal')">Create one</button></p>
+        </div>
+    </div>
+
+    <!-- ===== SIGN UP MODAL ===== -->
+    <div id="signup-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="signup-title">
+        <div class="modal-inner">
+            <button class="modal-close" onclick="UI.closeModal('signup-modal')" aria-label="Close"><i class='bx bx-x'></i></button>
+            <div class="modal-brand">ALAN</div>
+            <h2 class="modal-title" id="signup-title">Create Account</h2>
+            <p class="modal-sub">Join the ALAN community</p>
+            <form id="signup-form" class="auth-form" novalidate>
+                <div class="form-group">
+                    <label for="signup-name">Full Name</label>
+                    <input type="text" id="signup-name" placeholder="Your full name" autocomplete="name" required>
+                    <span class="field-error" id="signup-name-err"></span>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email Address</label>
+                    <input type="email" id="signup-email" placeholder="hello@example.com" autocomplete="email" required>
+                    <span class="field-error" id="signup-email-err"></span>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <div class="input-wrap">
+                        <input type="password" id="signup-password" placeholder="Min. 8 characters" autocomplete="new-password" required>
+                        <button type="button" class="toggle-pw" onclick="UI.togglePassword('signup-password')" aria-label="Toggle password"><i class='bx bx-hide' id="signup-pw-icon"></i></button>
+                    </div>
+                    <span class="field-error" id="signup-pw-err"></span>
+                </div>
+                <div class="form-group">
+                    <label for="signup-confirm">Confirm Password</label>
+                    <div class="input-wrap">
+                        <input type="password" id="signup-confirm" placeholder="••••••••" autocomplete="new-password" required>
+                        <button type="button" class="toggle-pw" onclick="UI.togglePassword('signup-confirm')" aria-label="Toggle password"><i class='bx bx-hide' id="signup-confirm-icon"></i></button>
+                    </div>
+                    <span class="field-error" id="signup-confirm-err"></span>
+                </div>
+                <button type="submit" class="btn-primary btn-full" id="signup-btn">
+                    <span>Create Account</span>
+                    <i class='bx bx-right-arrow-alt'></i>
+                </button>
+            </form>
+            <p class="auth-switch">Already have an account? <button onclick="UI.switchModal('signup-modal','signin-modal')">Sign In</button></p>
+        </div>
+    </div>
+
+    <!-- ===== CART SIDEBAR ===== -->
+    <div id="cart-sidebar" class="cart-sidebar" role="dialog" aria-modal="true" aria-label="Shopping Cart">
+        <div class="cart-header">
+            <h3>Your Bag <span id="cart-count-label"></span></h3>
+            <button class="cart-close" onclick="UI.closeCart()" aria-label="Close cart"><i class='bx bx-x'></i></button>
+        </div>
+        <div id="cart-items" class="cart-items"></div>
+        <div class="cart-footer">
+            <div class="cart-subtotal">
+                <span>Subtotal</span>
+                <span id="cart-total">$0.00</span>
+            </div>
+            <p class="cart-note"><i class='bx bx-package'></i> Free shipping on orders over LKR&nbsp;15,000</p>
+            <button class="btn-primary btn-full" id="checkout-btn" onclick="UI.openCheckout()">
+                <span>Proceed to Checkout</span>
+                <i class='bx bx-right-arrow-alt'></i>
+            </button>
+            <button class="btn-ghost btn-full" onclick="UI.closeCart()">Continue Shopping</button>
+        </div>
+    </div>
+
+    <!-- ===== CHECKOUT MODAL ===== -->
+    <div id="checkout-modal" class="modal modal-wide" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+        <div class="modal-inner modal-checkout-inner">
+            <button class="modal-close" onclick="UI.closeModal('checkout-modal')" aria-label="Close"><i class='bx bx-x'></i></button>
+
+            <!-- Success State -->
+            <div id="checkout-success" class="checkout-success hidden">
+                <div class="success-icon"><i class='bx bx-check-circle'></i></div>
+                <h2>Order Confirmed!</h2>
+                <p>Thank you for shopping with ALAN. Your order has been placed and you'll receive a confirmation email shortly.</p>
+                <p class="order-number">Order #<span id="order-number"></span></p>
+                <button class="btn-primary" onclick="UI.closeModal('checkout-modal'); Cart.clear(); UI.renderCart();">Continue Shopping</button>
+            </div>
+
+            <!-- Checkout Form -->
+            <div id="checkout-form-wrap" class="checkout-grid">
+                <div class="checkout-left">
+                    <div class="modal-brand">ALAN</div>
+                    <h2 class="modal-title" id="checkout-title">Checkout</h2>
+
+                    <!-- Shipping -->
+                    <section class="checkout-section">
+                        <h4 class="checkout-section-title"><span class="step-num">1</span> Shipping Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="ship-fname">First Name</label>
+                                <input type="text" id="ship-fname" placeholder="First name" autocomplete="given-name">
+                                <span class="field-error" id="ship-fname-err"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="ship-lname">Last Name</label>
+                                <input type="text" id="ship-lname" placeholder="Last name" autocomplete="family-name">
+                                <span class="field-error" id="ship-lname-err"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="ship-email">Email</label>
+                            <input type="email" id="ship-email" placeholder="you@example.com" autocomplete="email">
+                            <span class="field-error" id="ship-email-err"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="ship-address">Address</label>
+                            <input type="text" id="ship-address" placeholder="Street address" autocomplete="street-address">
+                            <span class="field-error" id="ship-address-err"></span>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="ship-city">City</label>
+                                <input type="text" id="ship-city" placeholder="City" autocomplete="address-level2">
+                            </div>
+                            <div class="form-group">
+                                <label for="ship-zip">ZIP / Postal</label>
+                                <input type="text" id="ship-zip" placeholder="ZIP code" autocomplete="postal-code">
+                            </div>
+                        </div>
+                        <div class="shipping-options">
+                            <label class="ship-option">
+                                <input type="radio" name="shipping" value="standard" checked>
+                                <div class="ship-option-content">
+                                    <span class="ship-name">Standard Shipping</span>
+                                    <span class="ship-desc">5–7 business days</span>
+                                </div>
+                                <span class="ship-price">Free</span>
+                            </label>
+                            <label class="ship-option">
+                                <input type="radio" name="shipping" value="express">
+                                <div class="ship-option-content">
+                                    <span class="ship-name">Express Shipping</span>
+                                    <span class="ship-desc">2–3 business days</span>
+                                </div>
+                                <span class="ship-price">LKR&nbsp;3,900</span>
+                            </label>
+                        </div>
+                    </section>
+
+                    <!-- Coupon Code -->
+                    <section class="checkout-section">
+                        <h4 class="checkout-section-title"><span class="step-num">2</span> Coupon Code <span style="font-size:11px;color:var(--text3);font-family:'DM Sans',sans-serif;font-weight:400;letter-spacing:0">— optional</span></h4>
+                        <div style="display:flex;gap:10px;align-items:flex-start">
+                            <div class="form-group" style="flex:1;gap:0">
+                                <input type="text" id="coupon-input" placeholder="e.g. WELCOME10" style="text-transform:uppercase;letter-spacing:2px">
+                                <span id="coupon-msg" style="font-size:12px;margin-top:6px;display:block;min-height:18px"></span>
+                            </div>
+                            <button type="button" class="btn-outline" onclick="Checkout.applyCoupon()" style="padding:13px 20px;flex-shrink:0">Apply</button>
+                        </div>
+                    </section>
+
+                    <!-- Payment via PayHere -->
+                    <section class="checkout-section">
+                        <h4 class="checkout-section-title"><span class="step-num">3</span> Payment</h4>
+                        <div class="payhere-box">
+                            <div class="payhere-logo-row">
+                                <div class="payhere-secure"><i class='bx bx-lock-alt'></i> Secured by PayHere</div>
+                                <div class="payhere-icons">
+                                    <i class='bx bxl-visa'></i>
+                                    <i class='bx bxl-mastercard'></i>
+                                    <span class="payhere-amex">AMEX</span>
+                                </div>
+                            </div>
+                            <p class="payhere-desc">Click "Pay with PayHere" below. You'll be taken to PayHere's secure hosted payment page to complete your transaction.</p>
+                            <div class="payhere-chips">
+                                <span class="ph-chip"><i class='bx bx-check'></i> LKR Currency</span>
+                                <span class="ph-chip"><i class='bx bx-check'></i> Visa &amp; Mastercard</span>
+                                <span class="ph-chip"><i class='bx bx-check'></i> Internet Banking</span>
+                                <span class="ph-chip"><i class='bx bx-check'></i> Cash Deposit</span>
+                            </div>
+                            <div class="payhere-sandbox-note">
+                                <i class='bx bx-info-circle'></i>
+                                <span><strong>Test Mode Active.</strong> Use test card <strong>4111 1111 1111 1111</strong>, any future expiry, OTP: <strong>123456</strong>.</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <button class="btn-primary btn-full btn-lg" id="place-order-btn" onclick="Checkout.placeOrder()">
+                        <i class='bx bx-credit-card'></i>
+                        <span>Pay with PayHere</span>
+                    </button>
+                </div>
+
+                <div class="checkout-right">
+                    <h4 class="checkout-section-title">Order Summary</h4>
+                    <div id="checkout-order-items" class="checkout-order-items"></div>
+                    <div class="checkout-totals">
+                        <div class="checkout-total-row"><span>Subtotal</span><span id="co-subtotal"></span></div>
+                        <div class="checkout-total-row" id="co-discount-row" style="display:none;color:var(--success)"><span>Discount <span id="co-coupon-label"></span></span><span id="co-discount"></span></div>
+                        <div class="checkout-total-row"><span>Shipping</span><span id="co-shipping">Free</span></div>
+                        <div class="checkout-total-row checkout-total-final"><span>Total</span><span id="co-total"></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== QUICK VIEW MODAL ===== -->
+    <div id="quickview-modal" class="modal modal-wide" role="dialog" aria-modal="true" aria-label="Product Quick View">
+        <div class="modal-inner quickview-inner">
+            <button class="modal-close" onclick="UI.closeModal('quickview-modal')" aria-label="Close"><i class='bx bx-x'></i></button>
+            <div id="quickview-content"></div>
+        </div>
+    </div>
+
+    <!-- ===== USER DROPDOWN ===== -->
+    <div id="user-dropdown" class="user-dropdown hidden">
+        <div class="user-dropdown-name" id="user-greeting"></div>
+        <a href="#" class="user-dropdown-item" onclick="event.preventDefault(); UI.openModal('signin-modal')" id="wishlist-link"><i class='bx bx-heart'></i> Wishlist</a>
+        <button class="user-dropdown-item" id="signout-btn" onclick="Auth.signOut()"><i class='bx bx-log-out'></i> Sign Out</button>
+    </div>
+
+    <!-- ===== NAVBAR ===== -->
+    <header class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <button class="hamburger" id="hamburger" onclick="UI.toggleMobileMenu()" aria-label="Menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+            <a href="#home" class="nav-logo" onclick="smoothScroll(event,'home')">ALAN</a>
+            <nav class="nav-center" id="nav-menu">
+                <a href="#home" onclick="smoothScroll(event,'home'); UI.closeMobileMenu()">Home</a>
+                <a href="#collections" onclick="smoothScroll(event,'collections'); UI.closeMobileMenu()">Collections</a>
+                <a href="#shop" onclick="smoothScroll(event,'shop'); UI.closeMobileMenu()">Shop</a>
+                <a href="#about" onclick="smoothScroll(event,'about'); UI.closeMobileMenu()">About</a>
+                <a href="#contact" onclick="smoothScroll(event,'contact'); UI.closeMobileMenu()">Contact</a>
+            </nav>
+            <div class="nav-right">
+                <button class="nav-icon-btn" onclick="UI.toggleSearch()" aria-label="Search"><i class='bx bx-search'></i></button>
+                <button class="nav-icon-btn" id="wishlist-nav-btn" onclick="UI.toggleWishlistPanel()" aria-label="Wishlist">
+                    <i class='bx bx-heart'></i>
+                    <span class="nav-badge hidden" id="wishlist-badge">0</span>
+                </button>
+                <button class="nav-icon-btn" id="cart-nav-btn" onclick="UI.openCart()" aria-label="Shopping Cart">
+                    <i class='bx bx-shopping-bag'></i>
+                    <span class="nav-badge hidden" id="cart-badge">0</span>
+                </button>
+                <button class="nav-icon-btn" id="user-nav-btn" onclick="UI.toggleUserMenu()" aria-label="Account">
+                    <i class='bx bx-user'></i>
+                </button>
+            </div>
+        </div>
+        <!-- Search Bar -->
+        <div id="search-bar" class="search-bar hidden">
+            <div class="search-bar-inner">
+                <i class='bx bx-search'></i>
+                <input type="text" id="search-input" placeholder="Search for styles, products..." oninput="UI.handleSearch(this.value)">
+                <button onclick="UI.toggleSearch()" aria-label="Close search"><i class='bx bx-x'></i></button>
+            </div>
+            <div id="search-results" class="search-results hidden"></div>
+        </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section id="home" class="hero">
+        <div class="hero-bg" id="hero-bg" style="background-image: url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1800&h=1000&fit=crop&auto=format')"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <p class="hero-eyebrow reveal">SS 2024 Collection</p>
+            <h1 class="hero-title reveal">
+                <span>Dressed</span>
+                <em>with Purpose</em>
+            </h1>
+            <p class="hero-desc reveal">Luxury essentials for the modern individual.<br>Crafted to endure. Designed to inspire.</p>
+            <div class="hero-btns reveal">
+                <a href="#shop" class="btn-primary" onclick="smoothScroll(event,'shop')">
+                    <span>Shop Men</span>
+                    <i class='bx bx-right-arrow-alt'></i>
+                </a>
+                <a href="#shop" class="btn-outline" onclick="smoothScroll(event,'shop')">
+                    <span>Shop Women</span>
+                </a>
+            </div>
+        </div>
+        <div class="hero-scroll-indicator">
+            <span>Scroll</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <!-- ===== BRAND STRIP ===== -->
+    <div class="brand-strip">
+        <div class="brand-strip-inner">
+            <div class="strip-item"><i class='bx bx-package'></i><span>Free Returns</span></div>
+            <div class="strip-divider"></div>
+            <div class="strip-item"><i class='bx bx-shield-quarter'></i><span>2-Year Warranty</span></div>
+            <div class="strip-divider"></div>
+            <div class="strip-item"><i class='bx bx-leaf'></i><span>Sustainably Made</span></div>
+            <div class="strip-divider"></div>
+            <div class="strip-item"><i class='bx bx-globe'></i><span>Ships Worldwide</span></div>
+        </div>
+    </div>
+
+    <!-- ===== COLLECTIONS ===== -->
+    <section id="collections" class="section collections-section">
+        <div class="section-header reveal">
+            <p class="section-eyebrow">Our World</p>
+            <h2 class="section-title">Collections</h2>
+        </div>
+        <div class="collections-grid">
+            <div class="collection-card reveal" onclick="filterProducts('men'); smoothScroll(event,'shop')" style="cursor:pointer;" role="button" tabindex="0">
+                <div class="collection-img" style="background-image:url('https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=700&h=900&fit=crop&auto=format')"></div>
+                <div class="collection-overlay"></div>
+                <div class="collection-content">
+                    <p class="collection-label">Explore →</p>
+                    <h3 class="collection-name">Men's</h3>
+                </div>
+            </div>
+            <div class="collection-card collection-card-tall reveal" onclick="filterProducts('women'); smoothScroll(event,'shop')" style="cursor:pointer;" role="button" tabindex="0">
+                <div class="collection-img" style="background-image:url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=700&h=1100&fit=crop&auto=format')"></div>
+                <div class="collection-overlay"></div>
+                <div class="collection-content">
+                    <p class="collection-label">Explore →</p>
+                    <h3 class="collection-name">Women's</h3>
+                </div>
+            </div>
+            <div class="collection-card reveal" onclick="filterProducts('accessories'); smoothScroll(event,'shop')" style="cursor:pointer;" role="button" tabindex="0">
+                <div class="collection-img" style="background-image:url('https://images.unsplash.com/photo-1523779917675-b6ed3a42a561?w=700&h=900&fit=crop&auto=format')"></div>
+                <div class="collection-overlay"></div>
+                <div class="collection-content">
+                    <p class="collection-label">Explore →</p>
+                    <h3 class="collection-name">Accessories</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SHOP / PRODUCTS ===== -->
+    <section id="shop" class="section products-section">
+        <div class="section-header reveal">
+            <p class="section-eyebrow">Curated for You</p>
+            <h2 class="section-title">The Edit</h2>
+        </div>
+        <div class="filter-tabs reveal">
+            <button class="filter-tab active" data-filter="all" onclick="filterProducts('all')">All</button>
+            <button class="filter-tab" data-filter="men" onclick="filterProducts('men')">Men</button>
+            <button class="filter-tab" data-filter="women" onclick="filterProducts('women')">Women</button>
+            <button class="filter-tab" data-filter="accessories" onclick="filterProducts('accessories')">Accessories</button>
+        </div>
+        <div id="products-grid" class="products-grid"></div>
+        <div class="section-footer reveal">
+            <button class="btn-outline" onclick="filterProducts('all')">View All Products <i class='bx bx-right-arrow-alt'></i></button>
+        </div>
+    </section>
+
+    <!-- ===== MID BANNER ===== -->
+    <section class="mid-banner">
+        <div class="mid-banner-bg" style="background-image:url('https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=1600&h=700&fit=crop&auto=format')"></div>
+        <div class="mid-banner-overlay"></div>
+        <div class="mid-banner-content reveal">
+            <p class="mid-eyebrow">Limited Edition</p>
+            <h2 class="mid-title">The Signature<br><em>Overcoat</em></h2>
+            <p class="mid-desc">Hand-finished in Italian wool. Available in three exclusive colourways.</p>
+            <a href="#shop" class="btn-gold" onclick="smoothScroll(event,'shop')">
+                <span>Shop Now</span>
+                <i class='bx bx-right-arrow-alt'></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- ===== ABOUT ===== -->
+    <section id="about" class="section about-section">
+        <div class="about-grid">
+            <div class="about-images reveal">
+                <div class="about-img-main" style="background-image:url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=750&fit=crop&auto=format')"></div>
+                <div class="about-img-accent" style="background-image:url('https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=400&h=500&fit=crop&auto=format')"></div>
+            </div>
+            <div class="about-content reveal">
+                <p class="section-eyebrow">Our Story</p>
+                <h2 class="section-title">Crafted with<br><em>Intention</em></h2>
+                <p class="about-text">ALAN was founded on a single belief — that clothing should be both beautiful and responsible. Every piece in our collection is thoughtfully designed with premium materials sourced from ethical suppliers.</p>
+                <p class="about-text">From the tailoring rooms of London to the workshops of Milan, our garments undergo rigorous quality checks to ensure they stand the test of time.</p>
+                <div class="about-stats">
+                    <div class="about-stat">
+                        <span class="stat-number">2010</span>
+                        <span class="stat-label">Founded</span>
+                    </div>
+                    <div class="about-stat">
+                        <span class="stat-number">120+</span>
+                        <span class="stat-label">Countries</span>
+                    </div>
+                    <div class="about-stat">
+                        <span class="stat-number">100%</span>
+                        <span class="stat-label">Sustainable</span>
+                    </div>
+                </div>
+                <a href="#shop" class="btn-primary" onclick="smoothScroll(event,'shop')">
+                    <span>Explore the Collection</span>
+                    <i class='bx bx-right-arrow-alt'></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== NEWSLETTER ===== -->
+    <section id="newsletter" class="newsletter-section">
+        <div class="newsletter-inner reveal">
+            <p class="section-eyebrow">Stay in the Know</p>
+            <h2 class="newsletter-title">Subscribe &amp; Save 10%</h2>
+            <p class="newsletter-desc">Be first to know about new arrivals, exclusive offers, and the latest from ALAN.</p>
+            <form class="newsletter-form" id="newsletter-form" onsubmit="UI.subscribeNewsletter(event)">
+                <div class="newsletter-input-wrap">
+                    <input type="email" id="newsletter-email" placeholder="Enter your email address" required>
+                    <button type="submit" class="btn-gold">
+                        <span>Subscribe</span>
+                        <i class='bx bx-right-arrow-alt'></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- ===== CONTACT ===== -->
+    <section id="contact" class="section contact-section">
+        <div class="section-header reveal">
+            <p class="section-eyebrow">Get in Touch</p>
+            <h2 class="section-title">Contact Us</h2>
+        </div>
+        <div class="contact-grid">
+            <div class="contact-info reveal">
+                <div class="contact-item">
+                    <div class="contact-icon"><i class='bx bx-phone'></i></div>
+                    <div>
+                        <h4>Phone</h4>
+                        <p>+94 77 398 7617</p>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon"><i class='bx bx-envelope'></i></div>
+                    <div>
+                        <h4>Email</h4>
+                        <p>hello@alan-fashion.com</p>
+                    </div>
+                </div>
+                <div class="contact-social">
+                    <a href="#" class="social-link" aria-label="Instagram"><i class='bx bxl-instagram'></i></a>
+                    <a href="#" class="social-link" aria-label="Pinterest"><i class='bx bxl-pinterest'></i></a>
+                    <a href="#" class="social-link" aria-label="Twitter"><i class='bx bxl-twitter'></i></a>
+                    <a href="#" class="social-link" aria-label="Facebook"><i class='bx bxl-facebook'></i></a>
+                </div>
+            </div>
+            <form class="contact-form reveal" id="contact-form" onsubmit="UI.submitContactForm(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="contact-name">Name</label>
+                        <input type="text" id="contact-name" placeholder="Your name">
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-email">Email</label>
+                        <input type="email" id="contact-email" placeholder="your@email.com">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="contact-subject">Subject</label>
+                    <input type="text" id="contact-subject" placeholder="How can we help?">
+                </div>
+                <div class="form-group">
+                    <label for="contact-message">Message</label>
+                    <textarea id="contact-message" rows="5" placeholder="Tell us more..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary">
+                    <span>Send Message</span>
+                    <i class='bx bx-right-arrow-alt'></i>
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- TRUST BAR -->
+    <div class="trust-bar">
+        <div class="trust-bar-inner">
+            <div class="trust-bar-label">
+                <i class='bx bx-lock-alt'></i>
+                <span>Secure &amp; Trusted Checkout</span>
+            </div>
+            <div class="trust-divider"></div>
+            <div class="trust-payments">
+                <!-- Visa -->
+                <div class="pay-badge pay-visa">
+                    <svg viewBox="0 0 60 38" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Visa">
+                        <rect width="60" height="38" rx="4" fill="#1A1F71"/>
+                        <path d="M25.5 26H22.4L24.4 12H27.5L25.5 26Z" fill="white"/>
+                        <path d="M36.2 12.3C35.5 12 34.4 11.7 33 11.7C29.9 11.7 27.7 13.3 27.7 15.6C27.7 17.3 29.2 18.2 30.4 18.8C31.6 19.4 32 19.8 32 20.3C32 21.1 31 21.4 30.1 21.4C28.9 21.4 28.2 21.2 27.1 20.7L26.7 20.5L26.2 23.5C27 23.9 28.5 24.2 30 24.2C33.3 24.2 35.5 22.6 35.5 20.1C35.5 18.7 34.7 17.7 32.8 16.8C31.7 16.2 31 15.8 31 15.3C31 14.8 31.6 14.3 32.8 14.3C33.8 14.3 34.6 14.5 35.2 14.8L35.5 14.9L36.2 12.3Z" fill="white"/>
+                        <path d="M40.5 21.1C40.8 20.3 42 17 42 17C42 17 42.3 16.2 42.5 15.7L42.8 16.9C42.8 16.9 43.5 20.4 43.7 21.1H40.5ZM44.5 12H42C41.2 12 40.6 12.2 40.2 13L35.5 26H38.8L39.5 24H43.5L43.9 26H46.8L44.5 12Z" fill="white"/>
+                        <path d="M20.6 12L17.5 21.5L17.2 19.8C16.6 17.8 14.8 15.6 12.8 14.5L15.6 26H19L24.1 12H20.6Z" fill="white"/>
+                        <path d="M14.4 12H9.1L9 12.3C13.1 13.3 15.9 15.8 17.2 19.8L15.9 13C15.7 12.3 15.1 12 14.4 12Z" fill="#FAA61A"/>
+                    </svg>
+                </div>
+                <!-- Mastercard -->
+                <div class="pay-badge pay-mc">
+                    <svg viewBox="0 0 60 38" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Mastercard">
+                        <rect width="60" height="38" rx="4" fill="#252525"/>
+                        <circle cx="23" cy="19" r="9" fill="#EB001B"/>
+                        <circle cx="37" cy="19" r="9" fill="#F79E1B"/>
+                        <path d="M30 11.8C31.8 13.2 33 15.5 33 19C33 22.5 31.8 24.8 30 26.2C28.2 24.8 27 22.5 27 19C27 15.5 28.2 13.2 30 11.8Z" fill="#FF5F00"/>
+                    </svg>
+                </div>
+                <!-- AMEX -->
+                <div class="pay-badge pay-amex">
+                    <svg viewBox="0 0 60 38" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="American Express">
+                        <rect width="60" height="38" rx="4" fill="#2557D6"/>
+                        <text x="9" y="18" font-family="Arial" font-weight="800" font-size="8" fill="white" letter-spacing="0.5">AMERICAN</text>
+                        <text x="9" y="28" font-family="Arial" font-weight="800" font-size="8" fill="white" letter-spacing="0.5">EXPRESS</text>
+                    </svg>
+                </div>
+                <!-- PayHere -->
+                <div class="pay-badge pay-payhere">
+                    <svg viewBox="0 0 80 38" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="PayHere">
+                        <rect width="80" height="38" rx="4" fill="#FF6B00"/>
+                        <text x="8" y="15" font-family="Arial" font-weight="700" font-size="7.5" fill="white">PAY</text>
+                        <text x="8" y="26" font-family="Arial" font-weight="900" font-size="10" fill="white">HERE</text>
+                        <text x="38" y="22" font-family="Arial" font-weight="600" font-size="7" fill="rgba(255,255,255,0.8)">LKR</text>
+                    </svg>
+                </div>
+                <!-- Internet Banking -->
+                <div class="pay-badge pay-bank">
+                    <i class='bx bx-building-house'></i>
+                    <span>Internet<br>Banking</span>
+                </div>
+                <!-- Cash Deposit -->
+                <div class="pay-badge pay-cash">
+                    <i class='bx bx-money'></i>
+                    <span>Cash<br>Deposit</span>
+                </div>
+            </div>
+            <div class="trust-divider"></div>
+            <div class="trust-features">
+                <div class="trust-feature">
+                    <i class='bx bx-lock-alt'></i>
+                    <span>256-bit SSL</span>
+                </div>
+                <div class="trust-feature">
+                    <i class='bx bx-shield-alt-2'></i>
+                    <span>Buyer Protected</span>
+                </div>
+                <div class="trust-feature">
+                    <i class='bx bx-refresh'></i>
+                    <span>Easy Returns</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <div class="footer-logo">ALAN</div>
+                <p class="footer-tagline">Luxury essentials for the modern individual.</p>
+                <div class="footer-social">
+                    <a href="#" aria-label="Instagram"><i class='bx bxl-instagram'></i></a>
+                    <a href="#" aria-label="Pinterest"><i class='bx bxl-pinterest'></i></a>
+                    <a href="#" aria-label="Twitter"><i class='bx bxl-twitter'></i></a>
+                    <a href="#" aria-label="Facebook"><i class='bx bxl-facebook'></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <div class="footer-col">
+                    <h5>Shop</h5>
+                    <a href="#" onclick="filterProducts('men'); smoothScroll(event,'shop')">Men's Collection</a>
+                    <a href="#" onclick="filterProducts('women'); smoothScroll(event,'shop')">Women's Collection</a>
+                    <a href="#" onclick="filterProducts('accessories'); smoothScroll(event,'shop')">Accessories</a>
+                    <a href="#shop" onclick="smoothScroll(event,'shop')">New Arrivals</a>
+                    <a href="#shop" onclick="smoothScroll(event,'shop')">Sale</a>
+                </div>
+                <div class="footer-col">
+                    <h5>Customer Care</h5>
+                    <a href="#contact" onclick="smoothScroll(event,'contact')">Contact Us</a>
+                    <a href="#">Shipping & Returns</a>
+                    <a href="#">Size Guide</a>
+                    <a href="#">Order Tracking</a>
+                    <a href="#">FAQs</a>
+                </div>
+                <div class="footer-col">
+                    <h5>Company</h5>
+                    <a href="#about" onclick="smoothScroll(event,'about')">About ALAN</a>
+                    <a href="#">Sustainability</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Press</a>
+                    <a href="#">Stores</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 ALAN Fashion House. All rights reserved.</p>
+            <div class="footer-legal">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Cookie Policy</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button id="back-to-top" class="back-to-top hidden" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+        <i class='bx bx-chevron-up'></i>
+    </button>
+
+    <script src="website.js"></script>
+</body>
+</html>
