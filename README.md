@@ -2,16 +2,7 @@
 
 <br/>
 
-```
-  █████╗  ██╗      █████╗  ███╗   ██╗
- ██╔══██╗ ██║     ██╔══██╗ ████╗  ██║
- ███████║ ██║     ███████║ ██╔██╗ ██║
- ██╔══██║ ██║     ██╔══██║ ██║╚████║
- ██║  ██║ ███████╗██║  ██║ ██║ ╚███║
- ╚═╝  ╚═╝ ╚══════╝╚═╝  ╚═╝╚═╝  ╚══╝
-```
-
-**Premium Fashion House — SS 2024 Collection**
+<img src="logo.svg" alt="ALAN Premium Fashion House" width="400" />
 
 <br/>
 
@@ -25,227 +16,166 @@
 > *"Luxury essentials for the modern individual.*
 > *Crafted to endure. Designed to inspire."*
 
-<br/>
-
----
+<br/><br/>
 
 </div>
 
-## ✦ What is ALAN?
+## ✦ &nbsp; Overview
 
-**ALAN** is a fully functional luxury fashion e-commerce web store — built with zero frameworks, zero backend servers, and zero monthly cost. It delivers a premium shopping experience powered by hand-crafted HTML, CSS, and JavaScript, with real-time cloud data sync via **Firebase Firestore**.
+**ALAN** is a fully functional luxury fashion e-commerce experience — built with zero frameworks, zero backend servers, and zero monthly cost. A premium shopping journey powered by hand-crafted HTML, CSS, and JavaScript, with real-time cloud data sync via **Firebase Firestore**.
 
-From a cinematic hero section to a full checkout flow with PayHere payments, every detail is designed to feel premium and production-ready.
+Every detail is intentional — from the cinematic hero to a full checkout flow with real LKR payments via PayHere.
 
 <br/>
 
-## 🌐 Live URLs
+## ✦ &nbsp; Live URLs
 
 | Page | URL |
 |---|---|
-| 🛍️ **Customer Store** | https://aaidh.github.io/Alan-Clothing/website.html |
-| 🔧 **Admin Dashboard** | https://aaidh.github.io/Alan-Clothing/admin.html |
+| 🛍️ Customer Store | https://aaidh.github.io/Alan-Clothing/website.html |
+| 🔧 Admin Dashboard | https://aaidh.github.io/Alan-Clothing/admin.html |
 
 <br/>
 
----
-
-## ✨ Feature Overview
-
-### 🛒 Customer Storefront
+## ✦ &nbsp; The Store
 
 | Feature | Description |
 |---|---|
-| **Cinematic Hero** | Full-screen imagery with animated scroll reveal effects |
-| **Collections Grid** | Men's, Women's & Accessories with one-click filtering |
-| **Product Catalogue** | 12+ luxury products with quick-view, size & colour selector |
-| **Live Search** | Instant product search with animated results dropdown |
-| **Shopping Cart** | Smooth slide-in bag with live subtotal & item controls |
-| **Wishlist** | Save favourites, persisted across browser sessions |
-| **User Auth** | Sign Up / Sign In with full form validation |
-| **Full Checkout** | Shipping info → Coupon codes → PayHere payment gateway |
-| **Newsletter** | Email capture with real-time cloud save to Firebase |
-| **Contact Form** | Messages sent instantly to the Admin inbox via Firebase |
-| **Responsive Design** | Mobile-first layout, works on all screen sizes |
+| Cinematic Hero | Full-screen imagery with scroll-reveal animations |
+| Collections Grid | Men's, Women's & Accessories with instant filtering |
+| Product Catalogue | 12+ luxury products with quick-view, size & colour selector |
+| Live Search | Instant search with animated dropdown results |
+| Shopping Cart | Slide-in bag with live subtotal and quantity controls |
+| Wishlist | Save favourites, persisted across sessions |
+| User Accounts | Sign Up & Sign In with full form validation |
+| Checkout Flow | Shipping → Coupon codes → PayHere payment |
+| Newsletter | Email capture saved to Firebase in real time |
+| Contact Form | Messages delivered instantly to the Admin inbox |
+| Responsive | Mobile-first — works perfectly on all screen sizes |
 
 <br/>
 
-### 🔧 Admin Dashboard
+## ✦ &nbsp; The Admin Panel
 
 | Feature | Description |
 |---|---|
-| **Secure Login** | Session-based authentication (username + password) |
-| **Live Dashboard** | Real-time stats: products, orders, revenue, messages |
-| **Product Manager** | Add, edit, hide or delete products — synced to store instantly |
-| **Orders Tracker** | Full order history with customer details, items & totals |
-| **Customer Accounts** | All registered users with order counts |
-| **Newsletter List** | Live subscriber list pulled from Firebase |
-| **Messages Inbox** | Contact form messages with read/unread status & email reply |
-| **Cloud Sync** | All data loaded from Firebase — works on any computer globally |
+| Secure Login | Session-based admin authentication |
+| Live Dashboard | Real-time stats — products, orders, revenue, messages |
+| Product Manager | Add, edit, hide or delete — syncs to store instantly |
+| Orders Tracker | Full order history with customer details and totals |
+| Customer Accounts | All registered users with order counts |
+| Newsletter List | Live subscriber list from Firebase |
+| Messages Inbox | Contact form messages with read/unread and email reply |
+| Cloud Sync | Loads all data from Firebase — works from any device globally |
 
 <br/>
 
----
+## ✦ &nbsp; Firebase Cloud Integration
 
-## ☁️ Firebase Cloud Integration
-
-> This project uses **Google Firebase Firestore** as its real-time cloud database — meaning all customer interactions are stored in the cloud and accessible from any device, anywhere.
+Every customer interaction is saved to **Google Firebase Firestore** and available instantly from any device — your phone, a different computer, anywhere.
 
 ```
-Customer fills form       Admin opens panel
-on any device             on any device
-      │                         │
-      ▼                         ▼
- ┌─────────────────────────────────────┐
- │        Firebase Firestore           │
- │       (Google Cloud Database)       │
- │                                     │
- │  📁 products     📁 orders          │
- │  📁 subscribers  📁 messages        │
- │  📁 users                           │
- └─────────────────────────────────────┘
+Customer on any device              Admin on any device
+        │                                   │
+        ▼                                   ▼
+  ┌─────────────────────────────────────────────┐
+  │            Firebase Firestore               │
+  │                                             │
+  │   📁 products     📁 orders                 │
+  │   📁 subscribers  📁 messages               │
+  │   📁 users                                  │
+  └─────────────────────────────────────────────┘
 ```
 
-### What gets synced to the cloud:
-
-| Collection | Trigger | Visible in Admin |
+| Collection | Written When | Admin Sees It |
 |---|---|---|
-| `products` | Admin adds/edits product | ✅ Appears on store for all visitors |
-| `orders` | Customer completes checkout | ✅ Any device, any browser |
-| `subscribers` | Customer signs up to newsletter | ✅ Any device, any browser |
-| `messages` | Customer sends contact form | ✅ Any device, any browser |
-| `users` | Customer creates account | ✅ Any device, any browser |
+| `products` | Admin adds via dashboard | Appears on store for all visitors |
+| `orders` | Customer completes checkout | From any device, any browser |
+| `subscribers` | Customer signs up to newsletter | From any device, any browser |
+| `messages` | Customer sends contact form | From any device, any browser |
+| `users` | Customer creates account | From any device, any browser |
 
 <br/>
 
----
+## ✦ &nbsp; Payment Integration
 
-## 💳 Payment Integration
+Powered by **[PayHere](https://www.payhere.lk/)** — Sri Lanka's leading payment gateway — in LKR.
 
-Payments are handled by **[PayHere](https://www.payhere.lk/)** — Sri Lanka's #1 payment gateway.
-
-| Method | Status |
+| Method | Supported |
 |---|---|
-| Visa & Mastercard | ✅ Supported |
-| American Express | ✅ Supported |
-| Internet Banking | ✅ Supported |
-| Cash Deposit | ✅ Supported |
-| **Currency** | 🇱🇰 **LKR (Sri Lankan Rupee)** |
+| Visa & Mastercard | ✅ |
+| American Express | ✅ |
+| Internet Banking | ✅ |
+| Cash Deposit | ✅ |
+| Currency | 🇱🇰 LKR |
 
-> **🧪 Test Mode Active** — Use card `4111 1111 1111 1111`, any future expiry, OTP: `123456`
+> **Test Mode Active** — Card `4111 1111 1111 1111` · Any future expiry · OTP `123456`
 
 <br/>
 
----
-
-## 🗂️ Project Structure
+## ✦ &nbsp; Project Structure
 
 ```
 Alan-Clothing/
 │
-├── 📄 index.html        ← GitHub Pages entry point (auto-redirect)
-├── 📄 website.html      ← Full customer-facing storefront
-├── 🎨 website.css       ← All storefront styles (44KB, pure CSS)
-├── ⚡ website.js        ← Store logic + Firebase integration
-└── 🔧 admin.html        ← Self-contained admin dashboard + Firebase sync
+├── index.html        Entry point — auto redirects to store
+├── website.html      Customer-facing storefront
+├── website.css       All styles — pure CSS, 44KB
+├── website.js        Store logic + Firebase integration
+└── admin.html        Admin dashboard — self-contained
 ```
 
 <br/>
 
----
-
-## 🚀 Tech Stack
+## ✦ &nbsp; Tech Stack
 
 | Layer | Technology |
 |---|---|
-| **Structure** | HTML5 (Semantic) |
-| **Styling** | Vanilla CSS — custom properties, grid, flexbox, animations |
-| **Logic** | Vanilla JavaScript ES6+ — no frameworks |
-| **Database** | Firebase Firestore (Google Cloud) |
-| **Fonts** | Playfair Display + DM Sans (Google Fonts) |
-| **Icons** | Boxicons 2.1.4 |
-| **Payment** | PayHere SDK (LKR) |
-| **Hosting** | GitHub Pages |
+| Structure | HTML5 Semantic |
+| Styling | Vanilla CSS — custom properties, grid, flexbox |
+| Logic | Vanilla JavaScript ES6+ |
+| Database | Firebase Firestore |
+| Fonts | Playfair Display & DM Sans |
+| Icons | Boxicons 2.1.4 |
+| Payments | PayHere SDK |
+| Hosting | GitHub Pages |
 
 <br/>
 
----
+## ✦ &nbsp; Admin Access
 
-## 🔐 Admin Access
-
-Navigate to [`/admin.html`](https://aaidh.github.io/Alan-Clothing/admin.html) and sign in:
+Open [`/admin.html`](https://aaidh.github.io/Alan-Clothing/admin.html) and sign in with the default credentials.
 
 ```
-Username : admin
-Password : alan2024
+Username   →   admin
+Password   →   alan2024
 ```
 
-> 💡 When you log in, the dashboard auto-syncs all data from Firebase Firestore in real time. No need to be on the same computer or browser — open it from your phone, your office PC, or anywhere.
+> The dashboard loads all live data from Firebase on login. Open it from any browser on any device and your orders, messages and subscribers are all there.
 
 <br/>
 
----
+## ✦ &nbsp; Running Locally
 
-## 📦 Running Locally
-
-No build step, no npm install. Just clone and open:
+No build steps. No installs. Just clone and open.
 
 ```bash
-# Clone the repo
 git clone https://github.com/aaidh/Alan-Clothing.git
-
-# Open the store in your browser
-start Alan-Clothing/website.html
-
-# Open the admin panel
-start Alan-Clothing/admin.html
 ```
 
-> 💡 For best results, use the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension in VS Code.
+Open `website.html` in your browser, or use the VS Code **Live Server** extension for the best experience.
 
 <br/>
 
----
+## ✦ &nbsp; Design Notes
 
-## 🎨 Design Highlights
-
-- 🖤 **Luxury dark aesthetic** — `#0a0a0a` black base with gold `#c8a96e` accents
-- ✍️ **Editorial typography** — Playfair Display headings, DM Sans body
-- ✨ **Scroll-reveal animations** — every section animates on viewport entry
-- 📱 **Fully responsive** — hamburger nav, stacked layouts, touch-friendly controls
-- 🔐 **256-bit SSL** — PayHere secured checkout
-- ♻️ **Free Returns** · 🌱 **Sustainably Made** · 🌍 **Ships Worldwide** · 📦 **2-Year Warranty**
+The aesthetic is built around a dark luxury palette — `#0a0a0a` black with gold `#c8a96e` accents, editorial typography in **Playfair Display** and **DM Sans**, and scroll-reveal animations on every section. The goal is a shopping experience that feels as premium as the clothing it sells.
 
 <br/>
-
----
-
-## 🧠 Architecture Overview
-
-```
-┌─────────────────────────────────────────────────────┐
-│                   GitHub Pages                       │
-│                  (Static Hosting)                    │
-│                                                      │
-│  website.html ──► website.css                        │
-│       │           website.js ──► Firebase Firestore  │
-│       │                │              │              │
-│  Customer UI      Auth, Cart,    Cloud Database      │
-│                   Checkout,      (Real-time sync)    │
-│                   Forms                              │
-│                                                      │
-│  admin.html ─────────────────► Firebase Firestore    │
-│  (Admin UI)                   (Read all collections) │
-└─────────────────────────────────────────────────────┘
-```
-
-<br/>
-
----
 
 <div align="center">
 
-Made with ♥ by **Alan Fashion House**
+<br/>
 
 *© 2024 ALAN Fashion House. All rights reserved.*
 
