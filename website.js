@@ -1,6 +1,41 @@
 'use strict';
 
 /* ============================================================
+   FIREBASE CONFIGURATION
+   ============================================================ */
+const firebaseConfig = {
+    apiKey:            "AIzaSyCASPa4dJIxUA-onDI-h1MMA-1Za7c-dH0",
+    authDomain:        "alanclothing.firebaseapp.com",
+    projectId:         "alanclothing",
+    storageBucket:     "alanclothing.firebasestorage.app",
+    messagingSenderId: "926379158333",
+    appId:             "1:926379158333:web:93e92ab8eede9cefc8b354"
+};
+
+// Initialize Firebase (loaded via CDN in website.html)
+let db = null;
+function initFirebase() {
+    try {
+        if (typeof firebase !== 'undefined') {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+        }
+    } catch(e) {
+        console.warn('Firebase init failed:', e);
+    }
+}
+
+// Helper: save to Firestore, fall back to localStorage silently
+async function dbSave(collection, data) {
+    if (db) {
+        try { await db.collection(collection).add(data); return true; }
+        catch(e) { console.warn('Firestore write failed:', e); }
+    }
+    return false;
+}
+
+
+/* ============================================================
    PAYHERE CONFIGURATION
    ─────────────────────────────────────────────────────────────
    HOW TO GO LIVE:
@@ -86,6 +121,21 @@ function getAllProducts() {
     return [...PRODUCTS.filter(p => !hidden.includes(p.id)), ...getCustomProducts()];
 }
 
+// Load custom products from Firestore and re-render
+async function syncCustomProductsFromFirestore() {
+    if (!db) return;
+    try {
+        const snap = await db.collection('products').get();
+        const firestoreProducts = snap.docs.map(doc => ({ ...doc.data(), _firestoreId: doc.id }));
+        if (firestoreProducts.length > 0) {
+            localStorage.setItem('alan_custom_products', JSON.stringify(firestoreProducts));
+            renderProducts(document.querySelector('.filter-tab.active')?.dataset.filter || 'all');
+        }
+    } catch(e) {
+        console.warn('Could not load products from Firestore:', e);
+    }
+}
+
 /* ============================================================
    AUTH MANAGER
    ============================================================ */
@@ -101,6 +151,8 @@ const Auth = {
         const user = {name,email:email.toLowerCase(),password,createdAt:Date.now(),coupon:'WELCOME10'};
         users.push(user); this.saveUsers(users);
         localStorage.setItem(this.USER_KEY,JSON.stringify({name,email:email.toLowerCase()}));
+        // Save to Firestore so admin can see all registered customers
+        dbSave('users', {name, email:email.toLowerCase(), createdAt:new Date().toISOString(), coupon:'WELCOME10'});
         UI.updateAuthUI(); return {ok:true};
     },
     signIn(email,password) {
@@ -232,7 +284,13 @@ const UI = {
         e.preventDefault();
         const email=document.getElementById('newsletter-email').value.trim(); if(!email)return;
         const subs=JSON.parse(localStorage.getItem('alan_subscribers')||'[]');
-        if(!subs.find(s=>s.email===email.toLowerCase())){subs.push({email:email.toLowerCase(),date:new Date().toISOString()});localStorage.setItem('alan_subscribers',JSON.stringify(subs));}
+        if(!subs.find(s=>s.email===email.toLowerCase())){
+            const entry = {email:email.toLowerCase(),date:new Date().toISOString()};
+            subs.push(entry);
+            localStorage.setItem('alan_subscribers',JSON.stringify(subs));
+            // Save to Firestore cloud
+            dbSave('subscribers', entry);
+        }
         this.showToast('🎉 Subscribed! Use code ALAN15 for 15% off.','success',5000);
         document.getElementById('newsletter-form').reset();
     },
@@ -243,10 +301,13 @@ const UI = {
         const email   = document.getElementById('contact-email')?.value.trim()   || '';
         const subject = document.getElementById('contact-subject')?.value.trim() || '';
         const message = document.getElementById('contact-message')?.value.trim() || '';
-        // Save message to localStorage
+        const entry = { id: Date.now(), name, email, subject, message, date: new Date().toISOString(), read: false };
+        // Save to localStorage (fallback)
         const msgs = JSON.parse(localStorage.getItem('alan_messages') || '[]');
-        msgs.push({ id: Date.now(), name, email, subject, message, date: new Date().toISOString(), read: false });
+        msgs.push(entry);
         localStorage.setItem('alan_messages', JSON.stringify(msgs));
+        // Save to Firestore cloud
+        dbSave('messages', entry);
         this.showToast('Message sent! We\'ll reply within 24 hours.','success');
         document.getElementById('contact-form').reset();
     },
@@ -379,9 +440,15 @@ const Checkout = {
     _completeOrder(orderId) {
         if (!this._pendingOrder) return;
         const order = {...this._pendingOrder, status: 'paid', payhere_order_id: orderId};
+        // Save to localStorage
         const allOrders = JSON.parse(localStorage.getItem('alan_orders')||'[]');
         allOrders.push(order);
         localStorage.setItem('alan_orders', JSON.stringify(allOrders));
+        // Save to Firestore cloud
+        dbSave('orders', {
+            ...order,
+            items: order.items.map(i => ({name:i.name,size:i.size,qty:i.qty,price:i.price})),
+        });
 
         document.getElementById('order-number').textContent = order.id;
         document.getElementById('checkout-form-wrap').style.display = 'none';
@@ -526,8 +593,11 @@ function initAuthForms() {
    INIT
    ============================================================ */
 document.addEventListener('DOMContentLoaded',()=>{
+    initFirebase();
     renderProducts('all'); UI.updateCartBadge(); UI.updateWishlistBadge(); UI.updateAuthUI();
     initScrollBehaviours(); initAuthForms(); observeReveal(); initPayhere();
+    // Sync custom products from Firestore (products added via admin panel)
+    syncCustomProductsFromFirestore();
     document.addEventListener('click',e=>{const dd=document.getElementById('user-dropdown'),btn=document.getElementById('user-nav-btn');if(!dd.contains(e.target)&&!btn.contains(e.target)){dd.classList.add('hidden');UI._userMenuOpen=false;}});
     document.addEventListener('keydown',e=>{if(e.key==='Escape')UI.closeAll();});
 });

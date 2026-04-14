@@ -7,6 +7,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <!-- Firebase SDK (Compat v9) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <style>
         :root {
             --bg:#0a0a0a;--bg2:#111;--bg3:#181818;--card:#141414;
@@ -387,6 +390,22 @@
 <script>
 const ADMIN = { user:'admin', pass:'alan2024' };
 
+/* ── FIREBASE INIT ── */
+const firebaseConfig = {
+    apiKey:            "AIzaSyCASPa4dJIxUA-onDI-h1MMA-1Za7c-dH0",
+    authDomain:        "alanclothing.firebaseapp.com",
+    projectId:         "alanclothing",
+    storageBucket:     "alanclothing.firebasestorage.app",
+    messagingSenderId: "926379158333",
+    appId:             "1:926379158333:web:93e92ab8eede9cefc8b354"
+};
+let db = null;
+try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+} catch(e) { console.warn('Firebase init error:', e); }
+
+
 /* ── BUILT-IN PRODUCTS (mirrors website.js) ── */
 const BASE_PRODUCTS = [
     {id:1,name:'The Woolmark Blazer',category:'men',price:18500,originalPrice:null,badge:'Bestseller',image:'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600&h=750&fit=crop&auto=format',rating:4.8,reviews:124},
@@ -403,10 +422,11 @@ const BASE_PRODUCTS = [
     {id:12,name:'Suede Chelsea Boot',category:'accessories',price:14900,originalPrice:19500,badge:'Sale',image:'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=750&fit=crop&auto=format',rating:4.7,reviews:88},
 ];
 
+
 /* ── HELPERS ── */
 const fmtLKR    = n => 'LKR ' + Math.round(n).toLocaleString('en-US');
 const getCustom = () => JSON.parse(localStorage.getItem('alan_custom_products')  || '[]');
-const saveCustom= l  => localStorage.setItem('alan_custom_products', JSON.stringify(l));
+const saveCustomLocal = l => localStorage.setItem('alan_custom_products', JSON.stringify(l));
 const getHidden = () => JSON.parse(localStorage.getItem('alan_hidden_products')  || '[]');
 const saveHidden= l  => localStorage.setItem('alan_hidden_products', JSON.stringify(l));
 const getOrders = () => JSON.parse(localStorage.getItem('alan_orders')           || '[]');
@@ -416,6 +436,42 @@ const getMsgs   = () => JSON.parse(localStorage.getItem('alan_messages')        
 const saveMsgs  = l  => localStorage.setItem('alan_messages', JSON.stringify(l));
 const isCustom  = id => getCustom().some(c => c.id === id);
 let _catFilter = '';
+
+/* ── FIRESTORE LOADERS ── */
+async function loadFromFirestore(collection, localKey) {
+    if (!db) return;
+    try {
+        const snap = await db.collection(collection).get();
+        const data = snap.docs.map(doc => ({ ...doc.data(), _firestoreId: doc.id }));
+        if (data.length > 0) localStorage.setItem(localKey, JSON.stringify(data));
+    } catch(e) { console.warn('Firestore load error:', e); }
+}
+
+async function loadAllFromFirestore() {
+    await Promise.all([
+        loadFromFirestore('orders',      'alan_orders'),
+        loadFromFirestore('users',       'alan_users'),
+        loadFromFirestore('subscribers', 'alan_subscribers'),
+        loadFromFirestore('messages',    'alan_messages'),
+        loadFromFirestore('products',    'alan_custom_products'),
+    ]);
+    renderDashboard();
+}
+
+async function dbSaveAdmin(collection, data) {
+    if (db) {
+        try { return await db.collection(collection).add(data); }
+        catch(e) { console.warn('Firestore write error:', e); }
+    }
+}
+
+async function dbDeleteAdmin(collection, firestoreId) {
+    if (db && firestoreId) {
+        try { await db.collection(collection).doc(firestoreId).delete(); }
+        catch(e) { console.warn('Firestore delete error:', e); }
+    }
+}
+
 
 function getAllProducts() {
     const hidden = getHidden();
@@ -530,10 +586,12 @@ function restoreHidden() {
     if(confirm(`Hidden: ${names}\n\nRestore ALL hidden products to the store?`)){saveHidden([]);renderProductsTable();updateBadges();toast('All hidden products restored.');}
 }
 
-function deleteProduct(id) {
+async function deleteProduct(id) {
     const p=getCustom().find(c=>c.id===id); if(!p)return;
     if(!confirm(`Permanently delete "${p.name}"?\nThis cannot be undone.`)) return;
-    saveCustom(getCustom().filter(c=>c.id!==id));
+    // Remove from Firestore
+    if (p._firestoreId) await dbDeleteAdmin('products', p._firestoreId);
+    saveCustomLocal(getCustom().filter(c=>c.id!==id));
     renderProductsTable(); updateBadges();
     toast(`"${p.name}" deleted.`,'error');
 }
@@ -565,15 +623,30 @@ function editProduct(id) {
 function closeProductPanel() { document.getElementById('panel-overlay').classList.remove('show'); document.getElementById('product-panel').classList.remove('open'); }
 function previewImage(url) { document.getElementById('img-preview-box').style.backgroundImage=url?`url('${url}')`:'';}
 
-function saveProduct() {
+async function saveProduct() {
     const name=document.getElementById('p-name').value.trim(), price=parseFloat(document.getElementById('p-price').value), image=document.getElementById('p-image').value.trim();
     if(!name||!price||!image){toast('Fill in Name, Price and Image URL.','error');return;}
     const editId=document.getElementById('edit-product-id').value, sizes=document.getElementById('p-sizes').value.trim();
     const data={id:editId?parseInt(editId):Date.now(),name,category:document.getElementById('p-category').value,price,originalPrice:parseFloat(document.getElementById('p-orig-price').value)||null,badge:document.getElementById('p-badge').value||null,image,sizes:sizes?sizes.split(',').map(s=>s.trim()).filter(Boolean):['XS','S','M','L','XL'],colors:['#1a1a1a','#3a3028','#f0ebe3'],colorNames:['Ebony','Camel','Chalk'],rating:parseFloat(document.getElementById('p-rating').value)||4.5,reviews:parseInt(document.getElementById('p-reviews').value)||0,description:document.getElementById('p-desc').value.trim()};
     const custom=getCustom();
-    if(editId){const idx=custom.findIndex(c=>c.id===parseInt(editId));if(idx>-1)custom[idx]=data;else custom.push(data);toast('Product updated!');}
-    else{custom.push(data);toast('Product added to store!');}
-    saveCustom(custom); closeProductPanel(); renderProductsTable(); updateBadges();
+    if(editId){
+        // Update locally
+        const idx=custom.findIndex(c=>c.id===parseInt(editId));
+        if(idx>-1){custom[idx]=data;}else custom.push(data);
+        // Delete old Firestore doc and re-add
+        const oldDoc = custom.find(c => c.id === parseInt(editId));
+        if (oldDoc?._firestoreId) await dbDeleteAdmin('products', oldDoc._firestoreId);
+        const ref = await dbSaveAdmin('products', data);
+        if (ref) data._firestoreId = ref.id;
+        toast('Product updated!');
+    } else {
+        // New product — save to Firestore first to get ID
+        const ref = await dbSaveAdmin('products', data);
+        if (ref) data._firestoreId = ref.id;
+        custom.push(data);
+        toast('Product added to store! Visible to all visitors now ✅');
+    }
+    saveCustomLocal(custom); closeProductPanel(); renderProductsTable(); updateBadges();
 }
 
 /* ── ORDERS ── */
@@ -718,7 +791,7 @@ function importData(event) {
 }
 
 /* ── INIT ── */
-function initApp() { renderDashboard(); tick(); setInterval(tick,30000); }
+function initApp() { loadAllFromFirestore(); tick(); setInterval(tick,30000); }
 
 window.addEventListener('load',()=>{
     if(sessionStorage.getItem('alan_admin_ok')){
